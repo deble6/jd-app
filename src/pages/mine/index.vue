@@ -7,8 +7,11 @@
         <div class="text-con">Cayla Brister</div>
     </div>
     <div class="content">
-        <div class="con-item" v-for="(item,index) in conList"
-        :key="index">
+        <div
+          class="con-item"
+          v-for="(item,index) in conList"
+          :key="index"
+          @click="toPage(item)">
             <div>
                 <img :src="item.img1" alt="">
             </div>
@@ -30,21 +33,30 @@ export default {
         {
           img1: require('../../assets/订单.png'),
           label: '我的订单',
-          img2: require('../../assets/右.png')
+          img2: require('../../assets/右.png'),
+          toPath: '/order-list'
         }, {
           img1: require('../../assets/修改密码.png'),
           label: '修改密码',
-          img2: require('../../assets/右.png')
+          img2: require('../../assets/右.png'),
+          toPath: '/change-password'
         }, {
           img1: require('../../assets/邀请码.png'),
           label: '修改店铺邀请码',
-          img2: require('../../assets/右.png')
+          img2: require('../../assets/右.png'),
+          toPath: '/change-store-code'
         }, {
           img1: require('../../assets/退出.png'),
           label: '退出登录',
-          img2: require('../../assets/右.png')
+          img2: require('../../assets/右.png'),
+          toPath: '/login'
         }
       ]
+    }
+  },
+  methods: {
+    toPage (data) {
+      this.$router.push({path: data.toPath})
     }
   }
 }
