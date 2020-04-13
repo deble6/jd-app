@@ -8,7 +8,7 @@
             <li>已完成</li>
         </ul>
     </div>
-    <div class="order-item" v-for="item of list" :key="item.id">
+    <div class="order-item" v-for="item of list" :key="item.id" @click="toPage(item)">
         <div class="item-top">
             <img src="../../assets/我的订单.png" alt="">
             <span>{{item.orderNum}}</span>
@@ -37,7 +37,7 @@
             <span>{{item.count}}</span>
         </div>
         <div class="item-more" v-show="item.orderStatus == '已完成'">
-            <div class="btn">
+            <div class="btn" @click.stop="evaluate(item)">
                 <span>评价</span>
             </div>
         </div>
@@ -74,6 +74,15 @@ export default {
         }
       ]
     }
+  },
+  methods: {
+	    toPage (data) {
+			this.$router.push({path: '/order-detail'})
+		},
+		evaluate (data) {
+			console.log(data)
+			this.$router.push({path: '/order-evaluate'})
+		}
   }
 }
 </script>
