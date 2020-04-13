@@ -1,8 +1,7 @@
 <template>
   <div>
     <el-container>
-      <el-header height="50px">
-
+      <el-header height="50px" v-show="!meta.headerHide">
         <div class="user-info">
           <span class="iconfont iconzuojiantou" @click="back" v-show="meta.goBackShow"></span>
           <span
@@ -16,19 +15,33 @@
       </el-header>
 
       <el-container>
-        <!-- <el-aside width="200px">
-          <el-menu @select="handlerSelect">
-            <el-menu-item v-for="(item, index) in menuList" :index="item.path" :key="index">
-              <span slot="title">{{item.title}}</span>
-            </el-menu-item>
-          </el-menu>
-        </el-aside> -->
-
-        <el-main>
+        <el-main :class="{'main-class1' : meta.headerHide, 'main-class2' : !meta.headerHide}">
           <router-view></router-view>
         </el-main>
       </el-container>
 
+      <el-footer v-show="meta.footerShow">
+        <div @click="$router.push({path: '/comm-home'})">
+          <img v-show="currentPath !== '/comm-home'" src="../assets/home2.png" alt="">
+          <img v-show="currentPath === '/comm-home'" src="../assets/home.png" alt="">
+          <div :style="{color: currentPath === '/comm-home' ? '#C39862' : '#333333'}">首页</div>
+        </div>
+        <div @click="$router.push({path: '/comm-classify'})">
+          <img v-show="currentPath !== '/comm-classify'" src="../assets/classify2.png" alt="">
+          <img v-show="currentPath === '/comm-classify'" src="../assets/classify.png" alt="">
+          <div :style="{color: currentPath === '/comm-classify' ? '#C39862' : '#333333'}">分类</div>
+        </div>
+        <div @click="$router.push({path: '/shop-car'})">
+          <img v-show="currentPath !== '/shop-car'" src="../assets/shop_car2.png" alt="">
+          <img v-show="currentPath === '/shop-car'" src="../assets/shop_car.png" alt="">
+          <div :style="{color: currentPath === '/shop-car' ? '#C39862' : '#333333'}">购物车</div>
+        </div>
+        <div @click="$router.push({path: '/mine'})">
+          <img v-show="currentPath !== '/mine'" src="../assets/mine2.png" alt="">
+          <img v-show="currentPath === '/mine'" src="../assets/mine.png" alt="">
+          <div :style="{color: currentPath === '/mine' ? '#C39862' : '#333333'}">我的</div>
+        </div>
+      </el-footer>
     </el-container>
   </div>
 </template>
@@ -38,18 +51,9 @@ export default {
   name: 'home',
   data () {
     return {
-      menuList: [
-        {title: '用户管理', path: '/user-manage'},
-        {title: '菜单管理', path: '/menu-manage'},
-        {title: '商品管理', path: '/comm-manage'},
-        {title: '首页轮播图管理', path: '/home-pic-manage'},
-        {title: '商品分类管理', path: '/comm-classify-manage'},
-        {title: '客户管理', path: '/client-manage'},
-        {title: '订单管理', path: '/order-manage'},
-        {title: '热门位商品管理', path: '/hot-comm-manage'},
-        {title: '门店信息管理', path: '/shop-info-manage'},
-        {title: '司机信息管理', path: '/driver-info-manage'}
-      ]
+      mainStyle: {
+
+      }
     }
   },
   computed: {
@@ -61,6 +65,9 @@ export default {
     },
     meta () {
       return this.$route.meta
+    },
+    currentPath () {
+      return this.$route.path
     }
   },
   methods: {
@@ -77,6 +84,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.main-class1 {
+  position: absolute;
+  top: 0;
+  bottom: 60px;
+}
+
+.main-class2 {
+  position: absolute;
+  top: 50px;
+  bottom: 0;
+}
+
 .el-header {
   display: flex;
   justify-content: space-between;
@@ -117,5 +136,39 @@ export default {
 
 .el-main {
   padding: 0;
+  width: 100%;
+}
+
+.el-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  height: 60px;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-top: 1px solid #000;
+
+  >div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: #333333;
+
+    img {
+      width: 30px;
+      height: 30px;
+    }
+
+    div {
+      position: relative;
+      top: 3px;
+    }
+  }
 }
 </style>

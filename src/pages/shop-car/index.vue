@@ -142,7 +142,6 @@ export default {
   .book-list {
     width: 95%;
     position: absolute;
-    top: 60px;
     left: 50%;
     bottom: 55px;
     overflow: auto;

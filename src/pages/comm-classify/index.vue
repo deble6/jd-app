@@ -128,7 +128,6 @@ export default {
 <style lang="scss" scoped>
 .container {
   position: absolute;
-  margin-top: 60px;
   top: 0;
   bottom: 0;
   width: 100%;

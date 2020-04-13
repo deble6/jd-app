@@ -11,12 +11,6 @@ export default new Router({
       name: 'login',
       component: () => import(/* webpackChunkName: "login" */ '@/pages/login.vue')
     },
-    // 首页
-    {
-      path: '/comm-home',
-      name: 'comm-home',
-      component: () => import(/* webpackChunkName: "comm-home" */ '@/pages/comm-home/index.vue')
-    },
     {
       path: '/',
       redirect: '/home'
@@ -27,6 +21,16 @@ export default new Router({
       redirect: '/comm-home',
       component: () => import(/* webpackChunkName: "home" */ '@/pages/home.vue'),
       children: [
+        // 首页
+        {
+          path: '/comm-home',
+          name: 'comm-home',
+          component: () => import(/* webpackChunkName: "comm-home" */ '@/pages/comm-home/index.vue'),
+          meta: {
+            headerHide: true,
+            footerShow: true
+          }
+        },
         // 注册
         {
           path: '/register',
@@ -38,7 +42,9 @@ export default new Router({
               toPath: '/register'
             }],
             goBack: '/login',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 商品详情
@@ -59,7 +65,9 @@ export default new Router({
               }
             ],
             goBack: '/comm-home',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 商品评价
@@ -75,7 +83,9 @@ export default new Router({
               }
             ],
             goBack: '/comm-detail',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 商品分类
@@ -91,7 +101,9 @@ export default new Router({
               }
             ],
             goBack: '/comm-home',
-            goBackShow: false
+            goBackShow: false,
+            headerHide: false,
+            footerShow: true
           }
         },
         // 购物车
@@ -107,7 +119,9 @@ export default new Router({
               }
             ],
             goBack: '/comm-home',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: true
           }
         },
         // 我的
@@ -123,7 +137,9 @@ export default new Router({
               }
             ],
             goBack: '/comm-home',
-            goBackShow: false
+            goBackShow: false,
+            headerHide: false,
+            footerShow: true
           }
         },
         // 订单列表
@@ -139,7 +155,9 @@ export default new Router({
               }
             ],
             goBack: '/mine',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 修改密码
@@ -155,7 +173,9 @@ export default new Router({
               }
             ],
             goBack: '/mine',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 修改店铺邀请码
@@ -171,7 +191,9 @@ export default new Router({
               }
             ],
             goBack: '/mine',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 订单详情
@@ -187,7 +209,9 @@ export default new Router({
               }
             ],
             goBack: '/order-list',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         },
         // 订单评价
@@ -203,7 +227,9 @@ export default new Router({
               }
             ],
             goBack: '/order-list',
-            goBackShow: true
+            goBackShow: true,
+            headerHide: false,
+            footerShow: false
           }
         }
       ]
