@@ -1,10 +1,17 @@
 <template>
   <div>
     <el-container>
-      <el-header height="60px">
+      <el-header height="50px">
 
         <div class="user-info">
-          <span>admin</span>
+          <span class="iconfont iconzuojiantou" @click="back" v-show="meta.goBackShow"></span>
+          <span
+            v-for="(item, index) in titleList"
+            :key="index"
+            @click="toPage(item)"
+            :class="{active: item.active }">
+            {{item.titleName}}
+          </span>
         </div>
       </el-header>
 
@@ -45,10 +52,24 @@ export default {
       ]
     }
   },
+  computed: {
+    titleList () {
+      return this.$route.meta.title
+    },
+    goBackBtn () {
+      return this.$route.meta.goBack
+    },
+    meta () {
+      return this.$route.meta
+    }
+  },
   methods: {
-    handlerSelect (key, path) {
-      if (key !== this.$route.path) {
-        this.$router.replace({path: key})
+    back () {
+      this.$router.push({path: this.goBackBtn})
+    },
+    toPage (data) {
+      if (data.toPath !== this.$route.path) {
+        this.$router.push({path: data.toPath})
       }
     }
   }
@@ -69,12 +90,27 @@ export default {
   }
 
   .user-info {
+    position: relative;
     display: flex;
+    justify-content: center;
     align-items: center;
-    height: 100%;
+    height: 50px;
+    font-size: 20px;
+    width: 100%;
 
-    img {
-      margin-right: 20px;
+    .iconzuojiantou {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translate(0, -50%);
+    }
+
+    span {
+      margin: 0 10px;
+    }
+
+    .active {
+      color: #C39862;
     }
   }
 }

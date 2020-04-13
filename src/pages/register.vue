@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="header">
+    <!-- <div class="header">
       <span class="iconfont iconzuojiantou" @click="$router.push({path: '/login'})"></span>
       <span>注册</span>
-    </div>
+    </div> -->
 
     <div class="logo">
       <img src="../assets/logo.png" alt="">
