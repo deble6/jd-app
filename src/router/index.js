@@ -107,44 +107,104 @@ export default new Router({
               }
             ],
             goBack: '/comm-home',
-            goBackShow: false
+            goBackShow: true
           }
         },
         // 我的
         {
           path: '/mine',
           name: 'mine',
-          component: () => import(/* webpackChunkName: "mine" */ '@/pages/mine/index.vue')
+          component: () => import(/* webpackChunkName: "mine" */ '@/pages/mine/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '我的',
+                toPath: '/mine'
+              }
+            ],
+            goBack: '/comm-home',
+            goBackShow: false
+          }
         },
         // 订单列表
         {
           path: '/order-list',
           name: 'order-list',
-          component: () => import(/* webpackChunkName: "order-list" */ '@/pages/order-list/index.vue')
+          component: () => import(/* webpackChunkName: "order-list" */ '@/pages/order-list/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '我的订单',
+                toPath: '/order-list'
+              }
+            ],
+            goBack: '/mine',
+            goBackShow: true
+          }
         },
         // 修改密码
         {
           path: '/change-password',
           name: 'change-password',
-          component: () => import(/* webpackChunkName: "change-password" */ '@/pages/change-password/index.vue')
+          component: () => import(/* webpackChunkName: "change-password" */ '@/pages/change-password/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '修改密码',
+                toPath: '/change-password'
+              }
+            ],
+            goBack: '/mine',
+            goBackShow: true
+          }
         },
         // 修改店铺邀请码
         {
           path: '/change-store-code',
           name: 'change-store-code',
-          component: () => import(/* webpackChunkName: "change-store-code" */ '@/pages/change-store-code/index.vue')
+          component: () => import(/* webpackChunkName: "change-store-code" */ '@/pages/change-store-code/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '修改店铺邀请码密码',
+                toPath: '/change-store-code'
+              }
+            ],
+            goBack: '/mine',
+            goBackShow: true
+          }
         },
         // 订单详情
         {
           path: '/order-detail',
           name: 'order-detail',
-          component: () => import(/* webpackChunkName: "order-detail" */ '@/pages/order-detail/index.vue')
+          component: () => import(/* webpackChunkName: "order-detail" */ '@/pages/order-detail/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '订单详情',
+                toPath: '/order-detail'
+              }
+            ],
+            goBack: '/order-list',
+            goBackShow: true
+          }
         },
         // 订单评价
         {
           path: '/order-evaluate',
           name: 'order-evaluate',
-          component: () => import(/* webpackChunkName: "order-evaluate" */ '@/pages/order-evaluate/index.vue')
+          component: () => import(/* webpackChunkName: "order-evaluate" */ '@/pages/order-evaluate/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '订单评价',
+                toPath: '/order-evaluate'
+              }
+            ],
+            goBack: '/order-list',
+            goBackShow: true
+          }
         }
       ]
     }

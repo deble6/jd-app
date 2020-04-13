@@ -123,6 +123,7 @@
         </div>
 
         <button>结算</button>
+        <button>删除</button>
       </div>
     </div>
   </div>
@@ -359,6 +360,10 @@ export default {
       border: none;
       border-radius: 10px;
       margin-left: 20px;
+    }
+
+    button:nth-child(3) {
+      background: red;
     }
   }
 }
