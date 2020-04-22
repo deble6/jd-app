@@ -1,21 +1,9 @@
 <template>
   <div class="container">
     <ul class="book-classify">
-      <li class="active">
+      <li :class="{active: item.classifyId === currentClassify.classifyId}" v-for="(item, index) in oneClassifyList" :key="index" @click="getTwoClassify(item)">
         <b></b>
-        <span>古典文学</span>
-      </li>
-      <li>
-        <b></b>
-        <span>任务传记</span>
-      </li>
-      <li>
-        <b></b>
-        <span>世界名著</span>
-      </li>
-      <li>
-        <b></b>
-        <span>教育</span>
+        <span>{{item.classifyName}}</span>
       </li>
     </ul>
 
@@ -24,7 +12,7 @@
         <div class="book-classify-item-title">{{item.classifyName}}</div>
         <ul class="book-list">
           <li v-for="(childItem, childIndex) in item.goodsList" :key="childIndex" @click="getCommDetail(childItem)">
-            <img src="../../assets/book1.jpg" alt="">
+            <img :src="childItem.goodsImagePath" alt="">
             <div>{{childItem.goodsName}}</div>
             <div>
               ￥{{childItem.goodsPrice}}
@@ -37,89 +25,114 @@
 </template>
 
 <script>
+import req from '@/api/comm-classify.js'
+
 export default {
   name: 'comm-classify',
   data () {
     return {
+      oneClassifyList: [],
+      currentClassify: {},
       commList: [
-        {
-          classifyId: '',
-          classifyName: '小说',
-          goodsList: [
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            }
-          ]
-        },
-        {
-          classifyId: '',
-          classifyName: '散文',
-          goodsList: [
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            },
-            {
-              goodsId: '',
-              goodsImagePath: './image/book1.jpg',
-              goodsName: '迪士尼爱与梦想绘本',
-              goodsPrice: '131.30'
-            }
-          ]
-        }
+        // {
+        //   classifyId: '',
+        //   classifyName: '小说',
+        //   goodsList: [
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     }
+        //   ]
+        // },
+        // {
+        //   classifyId: '',
+        //   classifyName: '散文',
+        //   goodsList: [
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     },
+        //     {
+        //       goodsId: '',
+        //       goodsImagePath: './image/book1.jpg',
+        //       goodsName: '迪士尼爱与梦想绘本',
+        //       goodsPrice: '131.30'
+        //     }
+        //   ]
+        // }
       ]
     }
   },
+  mounted () {
+    this.getClassify()
+  },
   methods: {
-    getCommDetail (data) {
-      console.log(data)
+    getClassify () {
+      req('getClassify', {}).then(data => {
+        this.oneClassifyList = data.data.oneClassifyList
+
+        this.currentClassify = this.oneClassifyList[0]
+
+        this.getTwoClassify(this.currentClassify)
+      })
+    },
+    getTwoClassify (item) {
+      this.currentClassify = item
+
+      req('getTwoClassify', {classifyId: item.classifyId}).then(data => {
+        this.commList = data.data.twoClassifyList
+      })
+    },
+    getCommDetail (item) {
+      sessionStorage.setItem('currentComm', JSON.stringify(item))
+
+      this.$router.push({path: '/comm-detail'})
     }
   }
 }

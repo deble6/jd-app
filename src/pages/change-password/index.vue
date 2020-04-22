@@ -1,36 +1,77 @@
 <template>
   <div>
     <div class="pwd-con">
-        <div class="pwd-item" v-for="(item,index) in conList"
-        :key="index">
-            <div class="item-left">{{item.label}}</div>
-            <input type="text" :placeholder="item.placeholder">
+        <div class="pwd-item">
+            <div class="item-left">原密码</div>
+            <input type="password" v-model="userPassword" placeholder="请输入原密码">
+        </div>
+        <div class="pwd-item">
+            <div class="item-left">新密码</div>
+            <input type="password" v-model="userNewPassword" placeholder="请输入新密码">
+        </div>
+        <div class="pwd-item">
+            <div class="item-left">确认新密码</div>
+            <input type="password" v-model="userNewConfirmPassword" placeholder="请再次输入新密码">
         </div>
     </div>
     <div class="btn">
         <img src="../../assets/按钮.png" >
-        <span>确认</span>
+        <span @click="submit">确认</span>
     </div>
   </div>
 </template>
 
 <script>
+import req from '@/api/change-password.js'
+
 export default {
   name: 'change-password',
   data () {
     return {
-      conList: [
-        {
-          label: '原密码',
-          placeholder: '请输入原密码'
-        }, {
-          label: '新密码',
-          placeholder: '请输入新密码'
-        }, {
-          label: '确认新密码',
-          placeholder: '请再次输入新密码'
+      userPassword: '',
+      userNewPassword: '',
+      userNewConfirmPassword: ''
+    }
+  },
+  methods: {
+    submit () {
+      if (!this.userPassword) {
+        this.$message.info('请输入原密码')
+
+        return
+      }
+      if (!this.userNewPassword) {
+        this.$message.info('请输入新密码')
+
+        return
+      }
+      if (!this.userNewConfirmPassword) {
+        this.$message.info('请确认新密码')
+
+        return
+      }
+      if (this.userNewPassword !== this.userNewConfirmPassword) {
+        this.$message.info('两次输入的密码不一致')
+
+        return
+      }
+      req('changePassword', {
+        userPassword: this.userPassword,
+        userNewPassword: this.userNewPassword
+      }).then(data => {
+        if (data.code === 0) {
+          this.$message.success(data.msg)
+
+          sessionStorage.clear('userInfo')
+          sessionStorage.clear('roleInfo')
+          sessionStorage.clear('currentComm')
+
+          this.$router.push('/login')
+        } else {
+          this.$message.error(data.msg)
         }
-      ]
+        console.log(data)
+      })
     }
   }
 }

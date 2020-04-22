@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="evaluate-title">
-      <span class="active">全部评价</span>
-      <span>好评</span>
-      <span>中评</span>
-      <span>差评</span>
+      <span :class="{active: evaluateBtnType === 'all'}" @click="getEvaluate('', 'all')">全部评价</span>
+      <span :class="{active: evaluateBtnType === 'perfect'}" @click="getEvaluate('5', 'perfect')">好评</span>
+      <span :class="{active: evaluateBtnType === 'good'}" @click="getEvaluate('3', 'good')">中评</span>
+      <span :class="{active: evaluateBtnType === 'differ'}" @click="getEvaluate('1', 'differ')">差评</span>
     </div>
 
     <ul class="evaluate-list">
@@ -33,54 +33,41 @@
 </template>
 
 <script>
+import req from '@/api/comm-evaluate.js'
+
 export default {
   name: 'comm-evaluate',
   data () {
     return {
-      list: [
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '1',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        },
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '3',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        },
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '5',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        },
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '2',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        },
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '5',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        },
-        {
-          userAcct: 'Cvita Doleschall',
-          evaluateContent: '这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容这是一段评价内容',
-          evaluateScore: '1',
-          createTime: '2020-01-01 11:11:11',
-          imageList: []
-        }
-      ]
+      list: [],
+      // all perfect good differ
+      evaluateBtnType: 'all'
+    }
+  },
+  mounted () {
+    this.getEvaluate('', 'all')
+  },
+  methods: {
+    getEvaluate (score = '', type) {
+      this.evaluateBtnType = type
+
+      let commData = JSON.parse(sessionStorage.getItem('currentComm'))
+      let data = {
+        goodsId: commData.goodsId,
+        evaluateScore: score,
+        pageSize: 100,
+        pageNum: 1
+      }
+
+      if (!score) {
+        delete data.evaluateScore
+      }
+
+      req('getEvaluate', {
+        ...data
+      }).then(data => {
+        this.list = data.data.list
+      })
     }
   }
 }
@@ -89,6 +76,7 @@ export default {
 <style lang="scss" scoped>
 .container {
   background: #ddd;
+  padding-bottom: 10px;
 
   .evaluate-title {
     width: 100%;

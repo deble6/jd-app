@@ -1,24 +1,90 @@
 <template>
   <div class="container">
-    <div class="comm">
-      <img src="../../assets/book1.jpg" alt="">
+    <div class="comm" v-for="(item, index) in evaluateList" :key="index">
+      <div class="pic-info">
+        <img :src="item.goodsImagePath" alt="">
 
-      <div class="star" :style="{backgroundPosition: `${180 - 5 * 36}px 0`}"></div>
+        <div class="star" :style="{backgroundPosition: `${180 - 5 * 36}px 0`}"></div>
+      </div>
+
+      <div class="eva-box">
+        <div class="title">分享你的使用体验吧</div>
+
+        <el-input v-model="item.evaluateContent" style="display: block;width:95%;margin: 0 auto;" type="textarea" :rows="5"></el-input>
+      </div>
     </div>
+    <!-- <div class="comm" v-for="(item, index) in evaluateList" :key="index">
+      <div class="pic-info">
+        <img :src="item.goodsImagePath" alt="">
 
-    <div class="title">分享你的使用体验吧</div>
+        <div class="star" :style="{backgroundPosition: `${180 - 5 * 36}px 0`}"></div>
+      </div>
 
-    <el-input style="display: block;width:95%;margin: 0 auto;" type="textarea" :rows="8"></el-input>
+      <div class="eva-box">
+        <div class="title">分享你的使用体验吧</div>
 
-    <el-button class="submit-btn" type="primary">提交</el-button>
+        <el-input style="display: block;width:95%;margin: 0 auto;" type="textarea" :rows="5"></el-input>
+      </div>
+    </div> -->
+
+    <el-button class="submit-btn" type="primary" @click="addEvaluate">提交</el-button>
   </div>
 </template>
 
 <script>
+import req from '@/api/order-evaluate.js'
+import axios from 'axios'
+// const qs = require('qs')
+
 export default {
   name: 'order-evaluate',
   data () {
-    return {}
+    return {
+      evaluateList: []
+    }
+  },
+  mounted () {
+    console.log(this.$route.query)
+    this.getEvaluate()
+  },
+  methods: {
+    getEvaluate () {
+      req('getEvaluate', {orderId: this.$route.query.orderId}).then(data => {
+        this.evaluateList = data.data.goodsList
+      })
+    },
+    addEvaluate () {
+      axios({
+        method: 'post',
+        url: process.env.BASE_API + '/app/clientOrder/addGoodsEvaluate',
+        data: JSON.stringify({
+          orderId: this.$route.query.orderId,
+          evaluateList: this.evaluateList.map(item => {
+            return Object.assign({}, {goodsId: item.goodsId, evaluateContent: item.evaluateContent, evaluateScore: '5'})
+          })
+        }),
+        headers: {
+          'Content-Type': 'application/json;',
+          Authorization: 'Bearer ' + JSON.parse(sessionStorage.getItem('userInfo')).access_token
+        }
+      }).then(data => {
+        if (data.data.code === 0) {
+          this.$message.success(data.data.msg)
+
+          this.$router.push({path: '/order-list'})
+        } else {
+          this.$message.error(data.data.msg)
+        }
+      })
+      // req('addEvaluate', {
+      //   orderId: this.$route.query.orderId,
+      //   evaluateList: this.evaluateList.map(item => {
+      //     return Object.assign({}, {goodsId: item.goodsId, evaluateContent: item.evaluateContent, evaluateScore: '5'})
+      //   })
+      // }).then(data => {
+
+      // })
+    }
   }
 }
 </script>
@@ -29,31 +95,41 @@ export default {
 
   .comm {
     width: 100%;
-    height: 200px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
+    // height: 200px;
+    // display: flex;
+    // justify-content: space-between;
+    // align-items: center;
+    padding: 10px 10px 0;
     box-sizing: border-box;
     background: #fff;
 
-    img {
-      width: 150px;
-      height: 180px;
+    .pic-info {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      img {
+        width: 150px;
+        height: 150px;
+      }
+
+      .star {
+        width: 180px;
+        height: 36px;
+        background: url('../../assets/stars.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
     }
 
-    .star {
-      width: 180px;
-      height: 36px;
-      background: url('../../assets/stars.png');
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
+    .eva-box {
+      width: 100%;
+      .title {
+        padding-left: 10px;
+        line-height: 40px;
+      }
     }
-  }
-
-  .title {
-    padding-left: 10px;
-    line-height: 40px;
   }
 
   .submit-btn {

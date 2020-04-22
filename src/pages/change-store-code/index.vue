@@ -2,9 +2,9 @@
   <div>
     <div class="content">
         <div class="con-left">新邀请码</div>
-        <input type="text" placeholder="请输入邀请码">
+        <input type="text" v-model="storeCode" placeholder="请输入邀请码">
     </div>
-    <div class="btn">
+    <div class="btn" @click="changeStoreCode">
         <img src="../../assets/按钮.png" >
         <span>确认</span>
     </div>
@@ -12,10 +12,35 @@
 </template>
 
 <script>
+import req from '@/api/change-store-code.js'
+
 export default {
   name: 'change-store-code',
   data () {
-    return {}
+    return {
+      storeCode: ''
+    }
+  },
+  methods: {
+    changeStoreCode () {
+      if (!this.storeCode) {
+        this.$message.info('请先输入邀请码')
+
+        return
+      }
+
+      req('changeStoreCode', {inviteCode: this.storeCode}).then(data => {
+        if (data.code === 0) {
+          this.$message.success(data.msg)
+
+          setTimeout(() => {
+            this.$router.push({path: '/shop-car'})
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    }
   }
 }
 </script>

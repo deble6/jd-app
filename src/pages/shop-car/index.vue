@@ -1,105 +1,27 @@
 <template>
   <div class="container">
     <ul class="book-list">
-      <li class="book-list-item">
+      <li class="book-list-item" v-for="(item, index) in list" :key="index">
 
         <!-- 选择按钮 -->
         <div class="select-btn-box">
           <div>
-            <input type="checkbox">
-            <div class="action"></div>
+            <input type="checkbox" @change="inputChange(item)">
+            <div class="action" :style="{display: item.checked ? 'block' : 'none'}"></div>
           </div>
         </div>
         <!-- 书本信息 -->
         <div class="book-count-info">
-          <img src="../../assets/book1.jpg" alt="">
+          <img :src="item.goodsImagePath" alt="">
           <div>
-            <div>一生自在一生自在一生自在一生自在一生自在一生自在一生自在</div>
+            <div>{{item.goodsName}}</div>
             <div>重量：0.32kg 系列：一生自在系列</div>
             <div>
-              <span>￥42.80</span>
+              <span>￥{{item.goodsPrice}}</span>
               <div class="change-count-box">
-                <div>-</div>
-                <div>1</div>
-                <div>+</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-      <li class="book-list-item">
-        <!-- 选择按钮 -->
-        <div class="select-btn-box">
-          <div>
-            <input type="checkbox">
-            <div class="action"></div>
-          </div>
-        </div>
-
-        <!-- 书本信息 -->
-        <div class="book-count-info">
-          <img src="../../assets/book1.jpg" alt="">
-          <div>
-            <div>一生自在一生自在一生自在一生自在一生自在一生自在一生自在</div>
-            <div>重量：0.32kg 系列：一生自在系列</div>
-            <div>
-              <span>￥56.80</span>
-              <div class="change-count-box">
-                <div>-</div>
-                <div>1</div>
-                <div>+</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-      <li class="book-list-item">
-        <!-- 选择按钮 -->
-        <div class="select-btn-box">
-          <div>
-            <input type="checkbox">
-            <div class="action"></div>
-          </div>
-        </div>
-
-        <!-- 书本信息 -->
-        <div class="book-count-info">
-          <img src="../../assets/book1.jpg" alt="">
-          <div>
-            <div>一生自在一生自在一生自在一生自在一生自在一生自在一生自在</div>
-            <div>重量：0.32kg 系列：一生自在系列</div>
-            <div>
-              <span>￥82.80</span>
-              <div class="change-count-box">
-                <div>-</div>
-                <div>1</div>
-                <div>+</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-      <li class="book-list-item">
-        <!-- 选择按钮 -->
-        <div class="select-btn-box">
-          <div>
-            <input type="checkbox">
-            <div class="action"></div>
-          </div>
-        </div>
-
-        <!-- 书本信息 -->
-        <div class="book-count-info">
-          <img src="../../assets/book1.jpg" alt="">
-          <div>
-            <div>一生自在一生自在一生自在一生自在一生自在一生自在一生自在</div>
-            <div>重量：0.32kg 系列：一生自在系列</div>
-            <div>
-              <span>￥22.80</span>
-              <div class="change-count-box">
-                <div>-</div>
-                <div>1</div>
-                <div>+</div>
+                <div @click="countDelete(item)">-</div>
+                <div>{{item.cartGoodsCount}}</div>
+                <div @click="countAdd(item)">+</div>
               </div>
             </div>
           </div>
@@ -110,8 +32,8 @@
     <div class="close-count">
       <div>
         <div>
-          <input type="checkbox">
-          <div class="action"></div>
+          <input type="checkbox" @change="allInputChange">
+          <div class="action" :style="{display: allChecked ? 'block' : 'none'}"></div>
         </div>
         <span>全选</span>
       </div>
@@ -119,33 +41,186 @@
       <div>
         <div>
           <b>合计:</b>
-          <span>0</span>
+          <span>{{totalPrice.toFixed(2)}}</span>
         </div>
 
-        <button>结算</button>
-        <button>删除</button>
+        <button @click="addShopCar">结算</button>
+        <button @click="deleteShopCar">删除</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import req from '@/api/shop-car.js'
+
 export default {
   name: 'shop-car',
   data () {
-    return {}
+    return {
+      allChecked: false,
+      totalPrice: 0,
+      list: []
+    }
+  },
+  mounted () {
+    this.getShopCarList()
+  },
+  methods: {
+    getShopCarList () {
+      req('getShopData', {pageSize: 100, pageNum: 1}).then(data => {
+        this.list = data.data.list.map(item => {
+          return Object.assign({}, item, {checked: false})
+        })
+
+        this.allChecked = false
+        this.totalPrice = this.getTotal()
+      })
+    },
+    addShopCar () {
+      let payCommList = this.list.filter(item => {
+        return item.checked === true
+      })
+
+      if (!payCommList.length) {
+        this.$message.info('请先选择需要购买的商品')
+
+        return
+      }
+
+      let goodsIds = this.list.filter(item => {
+        return item.checked === true
+      }).map(item => {
+        return item.goodsId
+      }).toString()
+
+      let goodsPrices = this.list.filter(item => {
+        return item.checked === true
+      }).map(item => {
+        return item.goodsPrice
+      }).toString()
+
+      let clientGoodsNums = this.list.filter(item => {
+        return item.checked === true
+      }).map(item => {
+        return item.cartGoodsCount
+      }).toString()
+
+      let shopCartIds = this.list.filter(item => {
+        return item.checked === true
+      }).map(item => {
+        return item.shopCartId
+      }).toString()
+
+      req('addOrder', {
+        goodsId: goodsIds,
+        goodsPrice: goodsPrices,
+        clientGoodsNum: clientGoodsNums,
+        shopCartId: shopCartIds,
+        storeId: JSON.parse(sessionStorage.getItem('roleInfo')).storeId
+      }).then(data => {
+        if (data.code === 0) {
+          this.$message.success(data.msg)
+
+          setTimeout(() => {
+            this.$router.push({path: '/order-list'})
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    deleteShopCar () {
+      let payCommList = this.list.filter(item => {
+        return item.checked === true
+      })
+
+      if (!payCommList.length) {
+        this.$message.info('请先选择需要删除的商品')
+
+        return
+      }
+
+      let shopCartIds = this.list.filter(item => {
+        return item.checked === true
+      }).map(item => {
+        return item.shopCartId
+      }).toString()
+
+      req('deleteShopCar', {shopCartId: shopCartIds}).then(data => {
+        if (data.code === 0) {
+          this.$message.success(data.msg)
+
+          this.getShopCarList()
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    // 全选按钮
+    allInputChange () {
+      this.allChecked = !this.allChecked
+
+      this.list.forEach(item => {
+        item.checked = this.allChecked
+      })
+
+      this.totalPrice = this.getTotal()
+    },
+    // 单选按钮
+    inputChange (item) {
+      item.checked = !item.checked
+
+      for (let i = 0; i < this.list.length; i++) {
+        if (this.list[i].checked === false) {
+          this.allChecked = false
+
+          break
+        } else {
+          this.allChecked = true
+        }
+      }
+
+      this.totalPrice = this.getTotal()
+    },
+    countDelete (data) {
+      if (data.cartGoodsCount > 1) {
+        data.cartGoodsCount = parseFloat(data.cartGoodsCount) - 1
+      }
+
+      this.totalPrice = this.getTotal()
+    },
+    countAdd (data) {
+      data.cartGoodsCount = parseFloat(data.cartGoodsCount) + 1
+
+      this.totalPrice = this.getTotal()
+    },
+    getTotal () {
+      let total = 0
+
+      this.list.forEach(item => {
+        if (item.checked) {
+          total = total + parseFloat(item.cartGoodsCount * item.goodsPrice)
+        }
+      })
+
+      return parseFloat(total.toFixed(2))
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.container {
+  padding-bottom: 110px;
+}
   .book-list {
-    width: 95%;
-    position: absolute;
-    left: 50%;
-    bottom: 55px;
+    width: 100%;
+    // position: absolute;
+    // left: 50%;
+    // bottom: 55px;
     overflow: auto;
-    transform: translate(-50%, 0);
+    // transform: translate(-50%, 0);
 
     li {
       display: flex;
@@ -209,6 +284,7 @@ export default {
         height: 100%;
 
         >img {
+          width: 25%;
           height: 80%;
           vertical-align: middle;
           align-self: center;
@@ -280,7 +356,7 @@ export default {
 
 .close-count {
   position: fixed;
-  bottom: 0;
+  bottom: 60px;
   width: 100%;
   height: 50px;
   background: #fff;
@@ -336,11 +412,14 @@ export default {
     justify-content: flex-end;
     align-items: center;
     height: 50px;
+    flex: 1;
 
-    div:first-child {
+    >div:first-child {
       height: 50px;
       line-height: 50px;
       font-size: 14px;
+      flex: 1;
+      margin-left: 10px;
 
       span {
         font-size: 18px;
@@ -349,7 +428,7 @@ export default {
     }
 
     button {
-      width: 100px;
+      width: 80px;
       height: 40px;
       background: rgb(197, 156, 104);
       color: #fff;

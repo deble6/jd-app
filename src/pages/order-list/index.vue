@@ -1,44 +1,90 @@
 <template>
-  <div>
+  <div class="container">
     <div class="leader">
         <ul>
-            <li class="active">全部订单</li>
-            <li>已付款</li>
-            <li>待取货</li>
-            <li>已完成</li>
+            <li :class="{active: this.orderType === 'all'}" @click="getOrderList('', 'all')">全部订单</li>
+            <li :class="{active: this.orderType === 'payed'}" @click="getOrderList('0', 'payed')">已付款</li>
+            <li :class="{active: this.orderType === 'pickup'}" @click="getOrderList('2', 'pickup')">待取货</li>
+            <li :class="{active: this.orderType === 'confirm'}" @click="getOrderList('4', 'confirm')">已完成</li>
         </ul>
     </div>
     <div class="order-item" v-for="item of list" :key="item.id" @click="toPage(item)">
         <div class="item-top">
-            <img src="../../assets/我的订单.png" alt="">
-            <span>{{item.orderNum}}</span>
-            <span>{{item.orderStatus}}</span>
+            <img src="../../assets/订单.png" alt="">
+            <span>{{item.orderId}}</span>
+            <span>
+                {{
+                    item.orderStateId === '0' ? '已下单' :
+                    item.orderStateId === '1' ? '已取消' :
+                    item.orderStateId === '2' ? '已到货' :
+                    item.orderStateId === '3' ? '已取货' :
+                    item.orderStateId === '4' ? '已完成未评价' :
+                    '已完成已评价'
+                }}
+            </span>
         </div>
-        <div class="item-center">
+        <div class="item-center" v-for="(childItem, index) in item.goodsList" :key="index">
             <div class="img-con">
-                <img :src="item.img" alt="">
+                <img :src="childItem.goodsImagePath" alt="">
             </div>
             <div class="text">
                 <div class="text-con">
-                    {{item.adv}}
+                    {{childItem.goodsName}}
                 </div>
                 <div class="props-con">
-                    {{item.prop}}
+                    {{childItem.goodsDescribe}}
                 </div>
                 <div class="price-con">
                     <span>￥</span>
-                    <span>{{item.price}} &nbsp;</span>
-                    <span>x{{item.number}}</span>
+                    <span>{{childItem.goodsPrice}} &nbsp;</span>
+                    <span>x{{childItem.cartGoodsCount}}</span>
                 </div>
             </div>
         </div>
-        <div class="item-bottom">
-            <span>共{{item.number}}件商品，合计￥</span>
-            <span>{{item.count}}</span>
+        <div class="shop-user-info" v-show="userType === 'shop'">
+            <img src="../../assets/u1056.png" alt="">
+            张三
+            <img src="../../assets/u1060.png" alt="">
+            13511111111
         </div>
-        <div class="item-more" v-show="item.orderStatus == '已完成'">
-            <div class="btn" @click.stop="evaluate(item)">
+        <div class="item-bottom">
+            <span>共{{item.orderAllGoodsCount}}件商品，合计￥</span>
+            <span>{{item.orderAllCost}}</span>
+        </div>
+        <!-- 客户 -->
+        <div class="item-more" v-show="userType === '4'">
+            <div
+              class="btn"
+              @click.stop="changeOrderStatus(item, '1')"
+              v-show="item.orderStateId === '0' || item.orderStateId === '2' || item.orderStateId === '3' || item.orderStateId === '4'">
+                <span>取消订单</span>
+            </div>
+            <div class="btn" @click.stop="evaluate(item)" v-show="item.orderStateId === '4'">
                 <span>评价</span>
+            </div>
+            <div class="btn" @click.stop="changeOrderStatus(item, '4')" v-show="item.orderStateId === '3'">
+                <span>确认收货</span>
+            </div>
+        </div>
+        <!-- 店长 -->
+        <div class="item-more" v-show="userType === '2'">
+            <div
+              class="btn"
+              @click.stop="changeOrderStatus(item, '1')"
+              v-show="item.orderStateId === '0' || item.orderStateId === '2'">
+                <span>取消订单</span>
+            </div>
+            <div class="btn" @click.stop="changeOrderStatus(item, '2')" v-show="item.orderStateId === '0'">
+                <span>确认到货</span>
+            </div>
+            <div class="btn" @click.stop="changeOrderStatus(item, '0')" v-show="item.orderStateId === '2'">
+                <span>取消到货</span>
+            </div>
+            <div class="btn" @click.stop="changeOrderStatus(item, '3')" v-show="item.orderStateId === '2'">
+                <span>确认取货</span>
+            </div>
+            <div class="btn" @click.stop="changeOrderStatus(item, '2')" v-show="item.orderStateId === '3'">
+                <span>取消取货</span>
             </div>
         </div>
     </div>
@@ -46,48 +92,121 @@
 </template>
 
 <script>
+import req from '@/api/order-list.js'
+
 export default {
   name: 'order-list',
   data () {
     return {
-      list: [
-        {
-          id: '001',
-          orderNum: '2020020713270034',
-          orderStatus: '已付款',
-          adv: '一生自在季羡林的自在智慧（午静携侣寻野菜，黄昏抱猫看夕阳！金庸、贾平凹...）',
-          img: require('../../assets/book1.jpg'),
-          prop: '重量：0.32kg 系列：一生自在系列',
-          price: '42.80',
-          number: '1',
-          count: '42.80'
-        }, {
-          id: '002',
-          orderNum: '2020020713270034',
-          orderStatus: '已完成',
-          adv: '一生自在季羡林的自在智慧（午静携侣寻野菜，黄昏抱猫看夕阳！金庸、贾平凹...）',
-          img: require('../../assets/book1.jpg'),
-          prop: '重量：0.32kg 系列：一生自在系列',
-          price: '42.80',
-          number: '1',
-          count: '42.80'
-        }
-      ]
+      list: [],
+      // all payed pickup confirm
+      orderType: 'all'
     }
   },
+  computed: {
+    userType () {
+      return JSON.parse(sessionStorage.getItem('roleInfo')).role
+    }
+    // orderType () {
+    //   if (this.orderDetail.orderStateId === '0') {
+    //     return '已下单'
+    //   } else if (this.orderDetail.orderStateId === '1') {
+    //     return '已取消'
+    //   } else if (this.orderDetail.orderStateId === '2') {
+    //     return '已到货'
+    //   } else if (this.orderDetail.orderStateId === '3') {
+    //     return '已取货'
+    //   } else if (this.orderDetail.orderStateId === '4') {
+    //     return '已完成未评价'
+    //   } else {
+    //     return '已完成已评价'
+    //   }
+    // }
+  },
+  mounted () {
+    this.getOrderList('', 'all')
+  },
   methods: {
-	    toPage (data) {
-			this.$router.push({path: '/order-detail'})
-		},
-		evaluate (data) {
-			console.log(data)
-			this.$router.push({path: '/order-evaluate'})
-		}
+    //   用户获取订单
+    getOrderList (orderStateId = '', type) {
+      let data = {
+        orderStateId: orderStateId,
+        pageSize: 100,
+        pageNum: 1
+      }
+
+      if (!orderStateId) {
+        delete data.orderStateId
+      }
+
+      this.orderType = type
+      if (JSON.parse(sessionStorage.getItem('roleInfo')).role === '4') {
+        req('getOrderList', {
+          ...data
+        }).then(data => {
+          if (data.code === 0) {
+            this.list = data.data.list
+          } else {
+            this.$message.info(data.msg)
+          }
+        })
+      } else {
+        req('getShopOrderList', {
+          ...data
+        }).then(data => {
+          console.log(data)
+          if (data.code === 0) {
+            this.list = data.data.list
+          } else {
+            this.$message.info(data.msg)
+          }
+        })
+      }
+    },
+    toPage (data) {
+      this.$router.push({path: '/order-detail', query: data})
+    },
+    evaluate (data) {
+      console.log(data)
+      this.$router.push({path: '/order-evaluate', query: data})
+    },
+    changeOrderStatus (item, changeStatus) {
+      // let orderType = ''
+
+      // if (item.orderStateId === '0') {
+      //   orderType = '已下单'
+      // } else if (item.orderStateId === '1') {
+      //   orderType = '已取消'
+      // } else if (item.orderStateId === '2') {
+      //   orderType = '已到货'
+      // } else if (item.orderStateId === '3') {
+      //   orderType = '已取货'
+      // } else if (item.orderStateId === '4') {
+      //   orderType = '已完成未评价'
+      // } else {
+      //   orderType = '已完成已评价'
+      // }
+
+      this.$confirm('确定进行该操作吗?').then(() => {
+        req('changeOrderStatus', {orderId: item.orderId, orderStateId: changeStatus}).then(data => {
+          if (data.code === 0) {
+            this.$message.success(data.msg)
+
+            this.getOrderList('', this.orderType)
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      })
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.container {
+    padding-bottom: 50px;
+}
   .leader {
       height: 64px;
       width: 100%;
@@ -112,7 +231,7 @@ export default {
   }
   .order-item {
       width: 95%;
-      margin: 0 auto 12px;
+      margin: 0 auto;
       background-color: white;
       border-radius: 8px;
       padding: 10px 15px;
@@ -201,13 +320,15 @@ export default {
       .item-more {
           width: 100%;
           display: flex;
+          justify-content: flex-end;
+
           .btn {
               width: 92px;
               height: 28px;
               border-radius: 20px;
               position: relative;
               border: 1.5px solid rgb(195,152,98);
-              margin-left: auto;
+              margin-left: 5px;
               margin-top: 10px;
               margin-bottom: 6px;
               span {
@@ -215,8 +336,11 @@ export default {
                   position: absolute;
                   top: 50%;
                   left: 50%;
-                  margin-top: -10.4px;
-                  margin-left: -16px;
+                  transform: translate(-50%, -50%);
+                //   margin-top: -10.4px;
+                //   margin-left: -16px;
+                    width: 100%;
+                    text-align:center;
                   color: rgb(195,152,98);
               }
           }

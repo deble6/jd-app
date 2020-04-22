@@ -2,22 +2,84 @@
   <div>
     <div class="user">
         <div class="img-con">
-            <img src="../../assets/head_pic.png" >
+            <img v-show="!userInfo.userImage" src="../../assets/user_default.png">
+            <img v-show="userInfo.userImage" :src="userInfo.userImage" >
         </div>
-        <div class="text-con">Cayla Brister</div>
+        <div class="text-con">{{userInfo.userName}}</div>
     </div>
+
+    <!-- 店长 -->
+    <div class="shop-info" v-show="userType === '2'">
+      <div>
+        <img src="../../assets/u919.png" alt="">
+        门店：{{userInfo.storeName}}
+      </div>
+      <div>
+        <img src="../../assets/u1265.png" alt="">
+        邀请码：{{userInfo.inviteCode}}
+      </div>
+      <div>
+        <img src="../../assets/u295.png" alt="">
+        {{userInfo.address}}
+      </div>
+    </div>
+
+    <!-- 司机 -->
+    <div class="driver-info" v-show="userType === '3'">
+      <div>
+        <img src="../../assets/u1210.png" alt="">
+        {{userInfo.driverName}}
+      </div>
+      <div>
+        <img src="../../assets/u1151.png" alt="">
+        {{userInfo.phone}}
+      </div>
+    </div>
+
     <div class="content">
+        <div class="con-item" @click="toPage('/order-list')" v-show="userType === '4'">
+            <div>
+                <img src="../../assets/订单.png" alt="">
+            </div>
+            <div><span>我的订单</span></div>
+            <div>
+                <img src="../../assets/右.png" alt="">
+            </div>
+        </div>
         <div
           class="con-item"
-          v-for="(item,index) in conList"
-          :key="index"
-          @click="toPage(item)">
+          @click="toPage('/change-password')"
+          v-show="userType === '4' || userType === '2' || userType === '3'">
             <div>
-                <img :src="item.img1" alt="">
+                <img src="../../assets/修改密码.png" alt="">
             </div>
-            <div><span>{{item.label}}</span></div>
+            <div><span>修改密码</span></div>
             <div>
-                <img :src="item.img2" alt="">
+                <img src="../../assets/右.png" alt="">
+            </div>
+        </div>
+        <div
+          class="con-item"
+          @click="toPage('/change-store-code')"
+          v-show="userType === '4'">
+            <div>
+                <img src="../../assets/邀请码.png" alt="">
+            </div>
+            <div><span>修改店铺邀请码</span></div>
+            <div>
+                <img src="../../assets/右.png" alt="">
+            </div>
+        </div>
+        <div
+          class="con-item"
+          @click="toLogin"
+          v-show="userType === '4' || userType === '2' || userType === '3'">
+            <div>
+                <img src="../../assets/退出.png" alt="">
+            </div>
+            <div><span>退出登录</span></div>
+            <div>
+                <img src="../../assets/右.png" alt="">
             </div>
         </div>
     </div>
@@ -25,38 +87,39 @@
 </template>
 
 <script>
+import req from '@/api/mine.js'
+
 export default {
   name: 'mine',
   data () {
     return {
-      conList: [
-        {
-          img1: require('../../assets/订单.png'),
-          label: '我的订单',
-          img2: require('../../assets/右.png'),
-          toPath: '/order-list'
-        }, {
-          img1: require('../../assets/修改密码.png'),
-          label: '修改密码',
-          img2: require('../../assets/右.png'),
-          toPath: '/change-password'
-        }, {
-          img1: require('../../assets/邀请码.png'),
-          label: '修改店铺邀请码',
-          img2: require('../../assets/右.png'),
-          toPath: '/change-store-code'
-        }, {
-          img1: require('../../assets/退出.png'),
-          label: '退出登录',
-          img2: require('../../assets/右.png'),
-          toPath: '/login'
-        }
-      ]
+      userInfo: {}
     }
   },
+  computed: {
+    userType () {
+      return JSON.parse(sessionStorage.getItem('roleInfo')).role
+    }
+  },
+  mounted () {
+    this.getUserInfo()
+  },
   methods: {
-    toPage (data) {
-      this.$router.push({path: data.toPath})
+    getUserInfo () {
+      req('getUserInfo', {}).then(data => {
+        console.log(data)
+        this.userInfo = data.data
+      })
+    },
+    toPage (path) {
+      this.$router.push({path: path})
+    },
+    toLogin () {
+      sessionStorage.clear('userInfo')
+      sessionStorage.clear('roleInfo')
+      sessionStorage.clear('currentComm')
+
+      this.$router.push('/login')
     }
   }
 }
@@ -71,10 +134,11 @@ export default {
           display: flex;
           align-items: center;
           img {
-              width: 65px;
-              height: 65px;
+              width: 70px;
+              height: 70px;
               position: relative;
               left: 38%;
+              border-radius: 50%;
           }
       }
       .text-con {
@@ -83,9 +147,53 @@ export default {
           font-size: 22px;
       }
   }
+
+  .shop-info {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+
+    >div {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      padding: 10px 0;
+      // height: 40px;
+
+      img {
+        // width: 24px;
+        // height: 24px;
+        margin-right: 10px;
+      }
+    }
+
+    >div:nth-child(2) {
+      padding-left: 5px;
+    }
+  }
+
+  .driver-info {
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    padding-left: 15px;
+    box-sizing: border-box;
+
+    >div {
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      display: flex;
+      align-items: center;
+
+      img {
+        margin-right: 10px;
+      }
+    }
+  }
+
   .content {
       width: 95%;
-      height: 206px;
+      // height: 206px;
       padding: 18px 16px;
       margin: 0 auto;
       box-sizing: border-box;

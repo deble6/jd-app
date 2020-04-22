@@ -13,7 +13,23 @@ export default new Router({
     },
     {
       path: '/',
-      redirect: '/home'
+      redirect: '/login'
+    },
+    // 注册
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import(/* webpackChunkName: "register" */ '@/pages/register.vue'),
+      meta: {
+        title: [{
+          titleName: '注册',
+          toPath: '/register'
+        }],
+        goBack: '/login',
+        goBackShow: true,
+        headerHide: false,
+        footerShow: false
+      }
     },
     {
       path: '/home',
@@ -29,22 +45,6 @@ export default new Router({
           meta: {
             headerHide: true,
             footerShow: true
-          }
-        },
-        // 注册
-        {
-          path: '/register',
-          name: 'register',
-          component: () => import(/* webpackChunkName: "register" */ '@/pages/register.vue'),
-          meta: {
-            title: [{
-              titleName: '注册',
-              toPath: '/register'
-            }],
-            goBack: '/login',
-            goBackShow: true,
-            headerHide: false,
-            footerShow: false
           }
         },
         // 商品详情
@@ -157,7 +157,7 @@ export default new Router({
             goBack: '/mine',
             goBackShow: true,
             headerHide: false,
-            footerShow: false
+            footerShow: true
           }
         },
         // 修改密码
@@ -230,6 +230,40 @@ export default new Router({
             goBackShow: true,
             headerHide: false,
             footerShow: false
+          }
+        },
+        {
+          path: '/driver-info',
+          name: 'driver-info',
+          component: () => import(/* webpackChunkName: "order-evaluate" */ '@/pages/driver-info/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '司机信息',
+                toPath: '/driver-info'
+              }
+            ],
+            goBack: '/',
+            goBackShow: false,
+            headerHide: false,
+            footerShow: true
+          }
+        },
+        {
+          path: '/driver-shop-info',
+          name: 'driver-shop-info',
+          component: () => import(/* webpackChunkName: "order-evaluate" */ '@/pages/driver-shop-info/index.vue'),
+          meta: {
+            title: [
+              {
+                titleName: '负责门店信息',
+                toPath: '/driver-shop-info'
+              }
+            ],
+            goBack: '/',
+            goBackShow: false,
+            headerHide: false,
+            footerShow: true
           }
         }
       ]

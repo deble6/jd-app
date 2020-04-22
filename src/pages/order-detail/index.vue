@@ -2,34 +2,49 @@
   <div>
     <div class="content">
         <div class="con-top">
-            <div class="top-item" v-for="item in topList"
-            :key="item.id">
+            <div class="top-item">
                 <div class="top-img-con">
-                    <img :src="item.img" :width="item.width">
+                    <img src="../../assets/卡车.png" style="width: 18px;">
                 </div>
-                <span>{{item.text}}</span>
+                <span>取货门店:{{orderDetail.storeName}}</span>
+            </div>
+            <div class="top-item">
+                <div class="top-img-con">
+                    <img src="../../assets/position2.png" style="width: 13px;">
+                </div>
+                <span>{{orderDetail.address}}</span>
             </div>
         </div>
         <div class="line"></div>
-        <div class="order-item" v-for="item of orderList" :key="item.id">
+        <div class="order-item" v-for="item of orderDetail.goodsList" :key="item.id">
             <div class="item-center">
                 <div class="img-con">
-                    <img :src="item.img">
+                    <img :src="item.goodsImagePath">
                 </div>
                 <div class="text">
-                    <div class="text-con">{{item.adv}}</div>
-                    <div class="props-con">{{item.prop}}</div>
+                    <div class="text-con">{{item.goodsName}}</div>
+                    <div class="props-con">{{item.goodsDescribe}}</div>
                     <div class="price-con">
                         <span>￥</span>
-                        <span>{{item.price}} </span>
-                        <span>x{{item.number}}</span>
+                        <span>{{item.goodsPrice}} </span>
+                        <span>x{{item.cartGoodsCount}}</span>
                     </div>
                 </div>
             </div>
-            <div class="item-bottom">
-                <span>共{{item.number}}件商品，合计￥</span>
-                <span>{{item.count}}</span>
-            </div>
+        </div>
+        <div class="item-bottom">
+            <span>共{{orderDetail.orderAllGoodsCount}}件商品，合计￥</span>
+            <span>{{orderDetail.orderAllCost}}</span>
+        </div>
+        <div class="shop-user-info" v-show="userType === '2'">
+          <div>
+            <img src="../../assets/u1056.png" alt="">
+            {{orderDetail.userName}}
+          </div>
+          <div>
+            <img src="../../assets/u1060.png" alt="">
+            {{orderDetail.phone}}
+          </div>
         </div>
     </div>
     <div class="order-msg">
@@ -41,15 +56,17 @@
         </ul>
         <ul>
             <li></li>
-            <li>{{msgList[0]}}</li>
-            <li>{{msgList[1]}}</li>
-            <li class="active">{{msgList[2]}}</li>
+            <li>{{orderDetail.orderId}}</li>
+            <li>{{orderDetail.crateTime}}</li>
+            <li style="color: red;">{{orderType}}</li>
         </ul>
     </div>
   </div>
 </template>
 
 <script>
+import req from '@/api/order-detail.js'
+
 export default {
   name: 'order-detail',
   data () {
@@ -67,6 +84,7 @@ export default {
           text: '取货门店：新华书店（新街口店）'
         }
       ],
+      orderDetail: {},
       orderList: [
         {
           id: '001',
@@ -83,6 +101,46 @@ export default {
         '2020-02-11 11:54:01',
         '已付款'
       ]
+    }
+  },
+  computed: {
+    userType () {
+      return JSON.parse(sessionStorage.getItem('roleInfo')).role
+    },
+    orderType () {
+      if (this.orderDetail.orderStateId === '0') {
+        return '已下单'
+      } else if (this.orderDetail.orderStateId === '1') {
+        return '已取消'
+      } else if (this.orderDetail.orderStateId === '2') {
+        return '已到货'
+      } else if (this.orderDetail.orderStateId === '3') {
+        return '已取货'
+      } else if (this.orderDetail.orderStateId === '4') {
+        return '已完成未评价'
+      } else {
+        return '已完成已评价'
+      }
+    }
+  },
+  mounted () {
+    this.getOrderDetail()
+  },
+  methods: {
+    getOrderDetail () {
+      if (this.userType === '4') {
+        req('getClientDetail', {orderId: this.$route.query.orderId}).then(data => {
+          console.log(data)
+          this.orderDetail = data.data
+          // this.orderList = data.data.goodsList
+        })
+      } else {
+        req('getShopDetail', {orderId: this.$route.query.orderId}).then(data => {
+          console.log(data)
+          this.orderDetail = data.data
+          // this.orderList = data.data.goodsList
+        })
+      }
     }
   }
 }
@@ -169,18 +227,34 @@ export default {
                   }
               }
           }
-          .item-bottom {
-              width: 100%;
-              line-height: 40px;
-              text-align: right;
-              padding-top: 5px;
-              span:nth-child(1) {
-                  font-size: 15px;
-              }
-              span:nth-child(2) {
-                  font-size: 20px;
-              }
+      }
+    .item-bottom {
+        width: 100%;
+        line-height: 40px;
+        text-align: right;
+        padding-top: 5px;
+        span:nth-child(1) {
+            font-size: 15px;
+        }
+        span:nth-child(2) {
+            font-size: 20px;
+        }
+    }
+
+      .shop-user-info {
+        width: 100%;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+
+        >div {
+          height: 30px;
+          line-height: 30px;
+
+          img {
+            vertical-align: middle;
           }
+        }
       }
   }
   .order-msg {

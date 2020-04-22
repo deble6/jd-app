@@ -2,8 +2,8 @@
   <div class="container">
     <div class="banner-pic-list">
       <el-carousel height="200px" indicator-position="none">
-        <el-carousel-item v-for="(item, index) in picList" :key="index">
-          <img :src="item" alt="">
+        <el-carousel-item v-for="(item, index) in slideshowList" :key="index">
+          <img :src="item.slideshowPath" alt="" @click="toDetailPage(item)">
         </el-carousel-item>
       </el-carousel>
     </div>
@@ -15,67 +15,44 @@
         v-for="(item, index) in commList"
         :key="index"
         @click="toDetailPage(item)">
-        <img src="../../assets/book1.jpg" alt="">
+        <img :src="item.goodsImagePath" alt="">
         <div class="book-info">{{item.goodsName}}</div>
-        <div>{{item.goodsPrice}}</div>
+        <div>￥{{item.goodsPrice}}</div>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import req from '@/api/comm-home.js'
+
 export default {
   name: 'comm-home',
   data () {
     return {
-      picList: [
-        '../../../static/assets/u159.jpg',
-        '../../../static/assets/u161.jpg',
-        '../../../static/assets/u157.jpg'
-      ],
-      commList: [
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        },
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        },
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        },
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        },
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        },
-        {
-          goodsId: '1',
-          goodsName: '迪士尼爱与梦想绘本（套装共15册）[3-6岁]',
-          goodsImagePath: '../../assets/book1.jpg',
-          goodsPrice: '￥154.50'
-        }
-      ]
+      slideshowList: [],
+      commList: []
     }
   },
+  mounted () {
+    this.getSliderPicList()
+    this.getHotComm()
+  },
   methods: {
+    getSliderPicList () {
+      req('getSliderPicList', {}).then(data => {
+        this.slideshowList = data.data.slideshowList
+      })
+    },
+    getHotComm () {
+      req('getHotComm', {}).then(data => {
+        this.commList = data.data.list
+        console.log(data)
+      })
+    },
     toDetailPage (data) {
-      console.log(data)
+      sessionStorage.setItem('currentComm', JSON.stringify(data))
+
       this.$router.push({path: '/comm-detail'})
     }
   }
@@ -113,7 +90,7 @@ export default {
   justify-content: space-between;
   flex-wrap: wrap;
   width: 100%;
-  margin-top: 10px;
+  // margin-top: 10px;
 
   li {
     position: relative;
@@ -121,11 +98,12 @@ export default {
     background: #fff;
     padding: 10px;
     box-sizing: border-box;
-    margin: 0 auto 10px;
+    margin: 5px 1%;
     border-radius: 10px;
 
     img {
       width: 100%;
+      height: 170px;
     }
 
     div:nth-child(2) {
